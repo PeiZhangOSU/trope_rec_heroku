@@ -1,0 +1,6 @@
+pandas
+bokeh
+unidecode
+flask
+jinja2
+pip
