@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Welcome to the Trope Recommender{% endblock %}
 {% block content %}
+  <div class="container">
     <h1>Welcome to the Trope Recommender!</h1>
 		<p>This will be a paragraph introducing tropes.</p>
 		<p>This will be another paragraph introducing trope associations. </p>
@@ -8,4 +9,6 @@
 		<form action="/rec">
         <input type="submit" value="Try the Recommender!" />
     </form>
+  </div>
+
 {% endblock %}

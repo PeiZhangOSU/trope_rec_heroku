@@ -17,6 +17,16 @@ def trope_rec():
     # all the heavy lifting of recommending tropes
     return render_template('rec.html')
 
+@app.route('/insights', methods=['GET'])
+def load_insights():
+    # all the heavy lifting of recommending tropes
+    return render_template('insights.html')
+
+@app.route('/about', methods=['GET'])
+def load_about():
+    # all the heavy lifting of recommending tropes
+    return render_template('about.html')
+
 #if __name__ == '__main__':
   #app.run(port=33507)
 
