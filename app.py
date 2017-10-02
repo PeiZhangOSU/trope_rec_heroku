@@ -7,17 +7,32 @@ import re
 import heapq
 
 import pandas as pd
-
 from bokeh.plotting import figure
 from bokeh.embed import components
 
+import os
+import psycopg2
+import urlparse
 
 app = Flask(__name__)
 
-# Load dictionary --------------------
-pkl_file = open('static/trope_assn_dict.pkl', 'rb')
-trope_assn_dict = pickle.load(pkl_file)
-pkl_file.close()
+# Connect to postgres database --------------------
+urlparse.uses_netloc.append("postgres")
+url = urlparse.urlparse(os.environ["DATABASE_URL"])
+
+conn = psycopg2.connect(
+    database=url.path[1:],
+    user=url.username,
+    password=url.password,
+    host=url.hostname,
+    port=url.port
+)
+
+
+# # Load dictionary -------------------- # TODO: loading speed is too low to be practical
+# pkl_file = open('static/trope_assn_dict.pkl', 'rb')
+# trope_assn_dict = pickle.load(pkl_file)
+# pkl_file.close()
 
 
 # Constants --------------------------
@@ -93,7 +108,9 @@ def heapsort_nlargest(my_dict, n):
 # TropeRecommender class -------------
 class TropeRecommender(object):
 
-    def __init__(self, input_string, assn_dict=trope_assn_dict, staple_tropes=STAPLE_TROPES):
+    def __init__(self, input_string, assn_dict, staple_tropes=STAPLE_TROPES):
+        # Old: assn_dict=trope_assn_dict, TODO New: generate assn_dict from postgres db based on input_string
+
         # master dictionary of trope associations
         self.assn_dict = assn_dict
         self.staple_tropes = staple_tropes
