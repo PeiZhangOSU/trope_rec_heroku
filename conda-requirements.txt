@@ -1,8 +1,0 @@
-pandas
-bokeh
-unidecode
-sqlalchemy
-psycopg2
-flask
-jinja2
-pip
