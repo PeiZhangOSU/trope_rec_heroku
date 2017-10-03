@@ -15,7 +15,7 @@ import psycopg2
 import urlparse
 
 app = Flask(__name__)
-
+app.config['DEBUG'] = os.environ.get('DEBUG', False)
 
 def get_postgres_url():
     # Connect to postgres database --------------------
