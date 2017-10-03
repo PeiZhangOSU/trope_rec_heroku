@@ -4,15 +4,19 @@ import requests
 
 import pickle, gzip
 import re
+import copy
 import heapq
+import os
+import urlparse
 
 import pandas as pd
 from bokeh.plotting import figure
 from bokeh.embed import components
 
-import os
+
 import psycopg2
-import urlparse
+import unidecode
+
 
 app = Flask(__name__)
 app.config['DEBUG'] = os.environ.get('DEBUG', False)
@@ -34,35 +38,7 @@ def get_conn():
     )
 
 
-# # Load dictionary -------------------- # TODO: loading speed is too low to be practical
-# pkl_file = open('static/trope_assn_dict.pkl', 'rb')
-# trope_assn_dict = pickle.load(pkl_file)
-# pkl_file.close()
-
-
 # Constants --------------------------
-# These top 20 tropes account for 5% of all trope counts.
-# Tropes with > 18 counts are at the 0.999 quantile of all tropes.
-STAPLE_TROPES = [u'ShoutOut',
-                 u'ChekhovsGun',
-                 u'DeadpanSnarker',
-                 u'OhCrap',
-                 u'Foreshadowing',
-                 u'Jerkass',
-                 u'BittersweetEnding',
-                 u'LargeHam',
-                 u'TitleDrop',
-                 u'MeaningfulName',
-                 u'BerserkButton',
-                 u'RunningGag',
-                 u'TheCameo',
-                 u'BigBad',
-                 u'KarmaHoudini',
-                 u'GroinAttack',
-                 u'WhatHappenedToTheMouse',
-                 u'BrickJoke',
-                 u'DownerEnding',
-                 u'BookEnds']
 GENRE_LIST = [u'Action',
               u'Adventure',
               u'Animation',
@@ -134,14 +110,14 @@ def heapsort_nlargest(my_dict, n):
 
 
 # TropeRecommender class -------------
-class TropeRecommender(object):
+# TODO: deal with database errors?
 
-    def __init__(self, input_string, assn_dict, staple_tropes=STAPLE_TROPES):
-        # Old: assn_dict=trope_assn_dict, TODO New: generate assn_dict from postgres db based on input_string
-
-        # master dictionary of trope associations
-        self.assn_dict = assn_dict
-        self.staple_tropes = staple_tropes
+class TropeRecPsql(object):
+    def __init__(self, input_string, db_conn):
+        self.cur = db_conn.cursor()
+        # init dictionaries
+        self.assn_dict = {} # will be the same format as trope_assn_dict that was used before database
+        self.freq_dict = {}
 
         # user input should be a string of comma separated tropes.
         if not isinstance(input_string, basestring):
@@ -152,72 +128,73 @@ class TropeRecommender(object):
 
         self.usr_tropes = split_csv_str(input_string)
         self.format_tropes()
-        self.validate_tropes()
+        self.make_dict_from_input() # will populate self.assn_dict and self.freq_dict with self.user_tropes as keys
         if len(self.usr_tropes) < 2:
             raise ValueError('Not enough tropes for analysis')
 
-        self.sum_total_connetions()
         self.combine_neighbors()
-        if len(self.common_count_dict) > 1:
-            self.filter_staples()
-        else:
+        if len(self.common_count_dict) < 1:
             raise ValueError('No shared associations')
+        self.expand_freq_dict()
+
+        # at the end of init, no need for db cursor anymore
+        self.cur.close()
 
     def get_usr_tropes(self):
-        return self.usr_tropes
+        return copy.deepcopy(self.usr_tropes)
 
     def get_common_count_dict(self):
-        return self.common_count_dict
-
-    def get_staple_count_dict(self):
-        return self.staple_count_dict
-
-    def get_sorted_staple_counts(self):
-        return [(t, n) for (n, t) in heapsort_nlargest(self.staple_count_dict, len(self.staple_count_dict))]
-
-    def get_non_staple_count_dict(self):
-        return self.non_staple_count_dict
+        return copy.deepcopy(self.common_count_dict)
 
     def format_tropes(self):
         self.usr_tropes = [strip_startcase(t) for t in self.usr_tropes]
 
-    def validate_tropes(self):
-        # TODO: if switching to database queries, need to be changed to 'if key in list_of_legit_keys'
-        self.usr_tropes = [t for t in self.usr_tropes if t in self.assn_dict]
-
-    def sum_total_connetions(self):
-        # counting all connections, whether shared by all tropes or not
-        self.total_connections = 0
+    def make_dict_from_input(self):
+        validated_tropes = []
         for trope in self.usr_tropes:
-            self.total_connections += sum(self.assn_dict[trope].values())
+            self.cur.execute("SELECT COUNT(*) FROM tropes WHERE trope = %s;", (trope,))
+            if self.cur.fetchone()[0] > 0:
+                validated_tropes.append(trope)
+                self.cur.execute("SELECT trope, freq, connections FROM tropes WHERE trope = %s;", (trope,))
+                row = self.cur.fetchone()
+                self.assn_dict[row[0]] = row[2] # make sure the index match trope, connections
+                self.freq_dict[row[0]] = row[1] # make sure the index match trope, freq
+        self.usr_tropes = validated_tropes
 
     def combine_neighbors(self):
         # calculate a count dict {trope: weight_sum} for neighbor tropes that are shared by all of self.usr_tropes
         dict_list = [self.assn_dict[t] for t in self.usr_tropes]
         self.common_count_dict = join_n_dicts(dict_list)
 
-    def filter_staples(self, staple_list=None):
+    def expand_freq_dict(self):
+        # make a dictionary of {trope: its overall frequncy (not number of associations)}
+        for trope in self.common_count_dict.keys():
+            self.cur.execute("SELECT trope, freq FROM tropes WHERE trope = %s;", (trope,))
+            row = self.cur.fetchone()
+            self.freq_dict[row[0]] = row[1] # make sure the index match trope, freq
 
-        if staple_list == None:
-            staple_list = self.staple_tropes
-
-        self.staple_count_dict = {}
-        self.non_staple_count_dict = self.common_count_dict.copy()
-        for key in staple_list:
-            value = self.non_staple_count_dict.pop(key, None)
-            if value:
-                self.staple_count_dict[key] = value
-
-    def find_top_n(self, n=5, filter_out_staples=True):
-        if filter_out_staples:
-            dict_for_sorting = self.non_staple_count_dict
+    def find_top_n(self, n=5, penalize_frequents = True):
+        if penalize_frequents:
+            dict_for_sorting = {key: value * 1.0 / self.freq_dict[key]
+                                for key, value in self.common_count_dict.iteritems()}
         else:
             dict_for_sorting = self.common_count_dict
 
-        if n > len(dict_for_sorting):
+        if len(dict_for_sorting) < 1:
             return None
+        elif n > len(dict_for_sorting):
+            return [(trope, self.freq_dict[trope]) for trope in dict_for_sorting.keys()]
         else:
-            return [(key, value) for (value, key) in heapsort_nlargest(dict_for_sorting, n)]
+            return [(trope, count) for (count, trope) in heapsort_nlargest(dict_for_sorting, n)]
+
+    def get_recommendations(self, n=5, penalize_frequents=True, format_tropes=True):
+        # returns only the names of tropes
+        results = [trope for (trope, count) in self.find_top_n(n, penalize_frequents)]
+        if format_tropes: # Output will be formatted like 'Shout Out'
+            return [add_space(trope) for trope in results]
+        else: # Output will be formatted like 'ShoutOut', with no spaces
+            return results
+
 
 
 # Rendering pages --------------------
@@ -237,13 +214,11 @@ def load_about():
 def trope_rec():
     # # testing rec__results
     conn = get_conn()
-    cur = conn.cursor()
-    cur.execute("SELECT trope, freq, connections FROM tropes WHERE trope = 'FrothyMugsOfWater';")
-    #cur.execute("SELECT 1 FROM tropes;")
-    trope, freqs, connections = cur.fetchone()
-    cur.close()
-    #results = 'Here are some results'
-    return render_template('rec.html', rec_results = freqs)
+    my_input = 'Boy Meets Girl, Blind Date, Everyone Can See It' ### TODO: this is only for testing
+    rec_eng = TropeRecPsql(my_input, conn)
+    results = '\n'.join(t for t in rec_eng.get_recommendations()) # TODO: newline does not work, need to translate to <br>
+    conn.close()
+    return render_template('rec.html', rec_results = results)
 
 # Running the app -------------------
 
