@@ -16,17 +16,22 @@ import urlparse
 
 app = Flask(__name__)
 
-# Connect to postgres database --------------------
-urlparse.uses_netloc.append("postgres")
-url = urlparse.urlparse(os.environ["DATABASE_URL"])
 
-conn = psycopg2.connect(
-    database=url.path[1:],
-    user=url.username,
-    password=url.password,
-    host=url.hostname,
-    port=url.port
-)
+def get_postgres_url():
+    # Connect to postgres database --------------------
+    urlparse.uses_netloc.append("postgres")
+    return urlparse.urlparse(os.environ["DATABASE_URL"])
+
+def get_conn():
+    url = get_postgres_url()
+
+    return psycopg2.connect(
+        database=url.path[1:],
+        user=url.username,
+        password=url.password,
+        host=url.hostname,
+        port=url.port
+    )
 
 
 # # Load dictionary -------------------- # TODO: loading speed is too low to be practical
@@ -230,7 +235,15 @@ def load_about():
 
 @app.route('/rec', methods=['GET'])
 def trope_rec():
-    return render_template('rec.html')
+    # # testing rec__results
+    # cur = conn.cursor()
+    # #cur.execute("SELECT trope, freq, connections FROM tropes WHERE trope = 'FrothyMugsOfWater';")
+    # cur.execute("SELECT 1 FROM tropes;")
+    # r = cur.fetchone()
+    # results = r[0]
+    # cur.close()
+    results = 'Here are some results'
+    return render_template('rec.html', rec_results = results)
 
 # Running the app -------------------
 
