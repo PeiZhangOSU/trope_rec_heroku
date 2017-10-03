@@ -236,14 +236,14 @@ def load_about():
 @app.route('/rec', methods=['GET'])
 def trope_rec():
     # # testing rec__results
-    # cur = conn.cursor()
-    # #cur.execute("SELECT trope, freq, connections FROM tropes WHERE trope = 'FrothyMugsOfWater';")
-    # cur.execute("SELECT 1 FROM tropes;")
-    # r = cur.fetchone()
-    # results = r[0]
-    # cur.close()
-    results = 'Here are some results'
-    return render_template('rec.html', rec_results = results)
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT trope, freq, connections FROM tropes WHERE trope = 'FrothyMugsOfWater';")
+    #cur.execute("SELECT 1 FROM tropes;")
+    trope, freqs, connections = cur.fetchone()
+    cur.close()
+    #results = 'Here are some results'
+    return render_template('rec.html', rec_results = freqs)
 
 # Running the app -------------------
 
