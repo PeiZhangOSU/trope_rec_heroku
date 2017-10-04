@@ -21,8 +21,8 @@ import unidecode
 app = Flask(__name__)
 app.config['DEBUG'] = os.environ.get('DEBUG', False)
 
+# Postgres database helper functions -----
 def get_postgres_url():
-    # Connect to postgres database --------------------
     urlparse.uses_netloc.append("postgres")
     return urlparse.urlparse(os.environ["DATABASE_URL"])
 
@@ -130,11 +130,11 @@ class TropeRecPsql(object):
         self.format_tropes()
         self.make_dict_from_input() # will populate self.assn_dict and self.freq_dict with self.user_tropes as keys
         if len(self.usr_tropes) < 2:
-            raise ValueError('Not enough tropes for analysis')
+            raise ValueError('Not enough tropes for analysis. Please try again with more tropes.')
 
         self.combine_neighbors()
         if len(self.common_count_dict) < 1:
-            raise ValueError('No shared associations')
+            raise ValueError('No shared associations. Please try again with different tropes.')
         self.expand_freq_dict()
 
         # at the end of init, no need for db cursor anymore
@@ -212,13 +212,22 @@ def load_about():
 
 @app.route('/rec', methods=['GET'])
 def trope_rec():
-    # # testing rec__results
-    conn = get_conn()
-    my_input = 'Boy Meets Girl, Blind Date, Everyone Can See It' ### TODO: this is only for testing
-    rec_eng = TropeRecPsql(my_input, conn)
-    results = '\n'.join(t for t in rec_eng.get_recommendations()) # TODO: newline does not work, need to translate to <br>
-    conn.close()
-    return render_template('rec.html', rec_results = results)
+    textarea_args = request.args.get('usrtropes')
+    if textarea_args:
+        conn = get_conn()
+        try:
+            rec_eng = TropeRecPsql(textarea_args, conn)
+            results = ['Here are the recommended tropes based on your list:',
+                       '---------------------------------------------------']
+            results.extend(rec_eng.get_recommendations())
+            conn.close()
+        except ValueError as e:
+            results = [getattr(e, 'message', repr(e))]
+    else:
+        results = []
+        # Keep trope suggestions if no textarea_args
+        textarea_args = 'Haunted House, Ironic Nursery Tune'
+    return render_template('rec.html', rec_results=results, textarea_args=textarea_args)
 
 # Running the app -------------------
 
