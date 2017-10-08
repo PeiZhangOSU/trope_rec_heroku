@@ -15,21 +15,7 @@
     <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.7.min.js"></script>
 
     <!-- Custom CSS for navbar, bokeh and boxed-->
-    <style>
-    body {
-      padding-top: 70px;
-    }
-
-    .bokeh {
-      margin: auto;
-      max-width: 100%;
-      height:auto;
-    }
-
-    .boxed {
-      border: 1px solid red;
-    }
-    </style>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
 
   </head>
 
@@ -47,20 +33,20 @@
 
         <div class="collapse navbar-collapse" id="nav-1">
           <ul class="nav navbar-nav">
-            <li class="nav-item active">
-              <a class="nav-link" href="{{ url_for('load_index') }}">Home<span class="sr-only">(current)</span></a>
+            <li id="recommendations" class="nav-item">
+              <a class="nav-link" href="{{ url_for('trope_rec') }}">Recommend Tropes<span class="sr-only"></span></a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('trope_rec') }}">Recommend Tropes</a>
+            <li id="howitworks" class="nav-item">
+              <a class="nav-link" href="{{ url_for('load_howitworks') }}">How It Works</a>
             </li>
-            <li class="nav-item">
+            <li id="insights" class="nav-item">
               <a class="nav-link" href="{{ url_for('load_insights') }}">Fun Facts</a>
             </li>
-            <li class="nav-item">
+            <li id="about" class="nav-item">
               <a class="nav-link" href="{{ url_for('load_about') }}">About Me</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="https://github.com/PeiZhangOSU/">GitHub</a> <!-- TODO: add repo address -->
+              <a class="nav-link" href="https://github.com/PeiZhangOSU/trope_rec_heroku">GitHub</a>
             </li>
           </ul>
 
@@ -75,6 +61,14 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
+    <script type="text/javascript">
+      let page = window.location.pathname.slice(1);
+      if (page == '') {
+        page = 'recommendations';
+      }
+      let $current_li = $('li#'+page);
+      // console.log('activating ', page, $current_li);
+      $current_li.addClass('active');
+    </script>
   </body>
 </html>

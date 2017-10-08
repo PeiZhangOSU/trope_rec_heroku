@@ -4,15 +4,15 @@
 {% block content %}
   <div class="container">
     <h1>Trope Recommendation</h1>
-    <p>Recommendations will be made based on how often they co-appear in movies with your tropes.</p>
+    <p><a href="{{ url_for('load_howitworks') }}">Want to learn more about how these recommendations are made?</a></p>
   </div>
 
   <!-- form -->
   <div class="container">
     <div class="row">
       <div class="col-lg-12 text-left">
-        <form id="usrinput" method="get" action="/rec"> <!-- action is the URL you want to move to next-->
-          Please enter your tropes, separated by commas (,):
+        <form id="usrinput" method="get" action="/"> <!-- action is the URL you want to move to next-->
+          Please enter your tropes (case insensitive), separated by commas (,):
           <br><br>
           <textarea rows="10" cols="50" name="usrtropes" form="usrinput">{{ textarea_args }}</textarea>
           <br>

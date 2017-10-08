@@ -199,18 +199,6 @@ class TropeRecPsql(object):
 
 # Rendering pages --------------------
 @app.route('/', methods=['GET'])
-def load_index():
-     return render_template('index.html')
-
-@app.route('/insights', methods=['GET'])
-def load_insights():
-    return render_template('insights.html')
-
-@app.route('/about', methods=['GET'])
-def load_about():
-    return render_template('about.html')
-
-@app.route('/rec', methods=['GET'])
 def trope_rec():
     textarea_args = request.args.get('usrtropes')
     if textarea_args:
@@ -227,7 +215,20 @@ def trope_rec():
         results = []
         # Keep trope suggestions if no textarea_args
         textarea_args = 'Haunted House, Ironic Nursery Tune'
-    return render_template('rec.html', rec_results=results, textarea_args=textarea_args)
+    return render_template('recommendations.html', rec_results=results, textarea_args=textarea_args)
+
+@app.route('/howitworks', methods=['GET'])
+def load_howitworks():
+     return render_template('howitworks.html')
+
+@app.route('/funfacts', methods=['GET'])
+def load_insights():
+    return render_template('funfacts.html')
+
+@app.route('/about', methods=['GET'])
+def load_about():
+    return render_template('about.html')
+
 
 # Running the app -------------------
 
