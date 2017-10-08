@@ -4,19 +4,20 @@
 {% block content %}
   <div class="container">
     <h1>Trope Recommendation</h1>
-    <br>
-    <p><a href="{{ url_for('load_howitworks') }}">Want to learn more about how the recommendations are made?</a></p>
   </div>
 
   <!-- form -->
   <div class="container">
     <div class="row">
       <div class="col-lg-12 text-left">
-        <form id="usrinput" method="get" action="/"> <!-- action is the URL you want to move to next-->
-          Please enter your tropes here, separated by commas (,):
-          <br>
-          (Case insensitive)
-          <br><br>
+        <p>Instructions instructions instructions instructions instructions instructions instructions.</p>
+        <p>More instructions instructions instructions instructions instructions.</p>
+      </div>
+      <div class="col-lg-6 text-left">
+        <input id="trope_search" type="string" placeholder="Search Tropes">
+      </div>
+      <div class="col-lg-6 text-left">
+        <form method="get" action="/"> <!-- action is the URL you want to move to next-->
           <textarea rows="10" cols="50" name="usrtropes" form="usrinput">{{ textarea_args }}</textarea>
           <br>
           <input type="submit" value="Recommend!"> <!-- value is the text that will appear on the button. -->
@@ -25,7 +26,6 @@
     </div>
   </div>
 
-  <br>
   <!-- recommendation results -->
   <div class="container">
     <h4>{{ rec_title }}</h4>
@@ -35,4 +35,8 @@
       {% endfor %}
     </ul>
   </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='scripts/trope_search.js') }}" type=text/javascript></script>
 {% endblock %}
