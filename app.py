@@ -205,17 +205,19 @@ def trope_rec():
         conn = get_conn()
         try:
             rec_eng = TropeRecPsql(textarea_args, conn)
-            results = ['Here are the recommended tropes based on your list:',
-                       '---------------------------------------------------']
-            results.extend(rec_eng.get_recommendations())
+            rec_title = 'Here are the recommended tropes based on your list:'
+            # rec_results: each tuple in the format of ('Shout Out', 'ShoutOut'), in order to display tvtropes link
+            rec_results = [(add_space(trope), trope) for trope in rec_eng.get_recommendations(format_tropes=False)]
             conn.close()
         except ValueError as e:
-            results = [getattr(e, 'message', repr(e))]
+            rec_title = getattr(e, 'message', repr(e))
+            rec_results = []
     else:
-        results = []
+        rec_title = ''
+        rec_results = []
         # Keep trope suggestions if no textarea_args
         textarea_args = 'Haunted House, Ironic Nursery Tune'
-    return render_template('recommendations.html', rec_results=results, textarea_args=textarea_args)
+    return render_template('recommendations.html', rec_title=rec_title, rec_results=rec_results, textarea_args=textarea_args)
 
 @app.route('/howitworks', methods=['GET'])
 def load_howitworks():
