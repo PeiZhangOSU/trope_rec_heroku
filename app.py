@@ -1,5 +1,5 @@
 # coding=utf-8
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, jsonify
 import requests
 
 import pickle, gzip
@@ -231,6 +231,14 @@ def load_insights():
 def load_about():
     return render_template('about.html')
 
+@app.route('/api/1/by_name/<name>', methods=['GET'])
+def fetch_tropes_by_name(name):
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            name_like = "%{}%".format(name)
+            cur.execute("SELECT trope FROM tropes WHERE trope ILIKE %s;", (name_like,))
+            names = [row[0] for row in cur.fetchall()]
+            return jsonify({'tropes': names})
 
 # Running the app -------------------
 
