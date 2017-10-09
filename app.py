@@ -200,7 +200,7 @@ class TropeRecPsql(object):
 # Rendering pages --------------------
 @app.route('/', methods=['GET'])
 def trope_rec():
-    textarea_args = request.args.get('usrtropes')
+    textarea_args = request.args.get('user_tropes')
     if textarea_args:
         conn = get_conn()
         try:
