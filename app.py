@@ -75,9 +75,12 @@ def strip_startcase(text):
        Then the text will be converted into a string of concatenated captalized words w/o spaces,
        eg.: 'BookEnds', 'YoureNotMyFather', 'RightForTheWrongReasons'. '''
     text = unidecode.unidecode(text)
-    text = re.sub(r'-', ' ', text)
-    text = re.sub(r'[^\w ]', '', text)
-    return ''.join(w.title() for w in text.split())
+    if ' ' in text:
+        text = re.sub(r'-', ' ', text)
+        text = re.sub(r'[^\w ]', '', text)
+        return ''.join(w[0].upper() + w[1:] for w in text.split())
+    else:
+        return text
 
 def split_csv_str(text):
     '''Take a string of comma separated values, return a list of values with leading/trailing spaces removed.'''
