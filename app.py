@@ -236,7 +236,15 @@ def fetch_tropes_by_name(name):
     with get_conn() as conn:
         with conn.cursor() as cur:
             name_like = "%{}%".format(name)
-            cur.execute("SELECT trope FROM tropes WHERE trope ILIKE %s;", (name_like,))
+            cur.execute("SELECT trope FROM tropes WHERE trope ILIKE %s ORDER BY trope", (name_like,))
+            names = [row[0] for row in cur.fetchall()]
+            return jsonify({'tropes': names})
+
+@app.route('/api/1/tropes', methods=['GET'])
+def fetch_all_tropes():
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT trope FROM tropes ORDER BY trope")
             names = [row[0] for row in cur.fetchall()]
             return jsonify({'tropes': names})
 

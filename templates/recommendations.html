@@ -13,9 +13,17 @@
         <p>Instructions instructions instructions instructions instructions instructions instructions.</p>
         <p>More instructions instructions instructions instructions instructions.</p>
       </div>
+
       <div class="col-lg-6 text-left">
-        <input id="trope_search" type="string" placeholder="Search Tropes">
+        <div>
+          <input id="trope_search" type="string" placeholder="Search Tropes">
+        </div>
+        <div>
+          <ul id="search_results">      
+          </ul>
+        </div>
       </div>
+
       <div class="col-lg-6 text-left">
         <form method="get" action="/"> <!-- action is the URL you want to move to next-->
           <textarea rows="10" cols="50" name="usrtropes" form="usrinput">{{ textarea_args }}</textarea>
