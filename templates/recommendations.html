@@ -19,7 +19,7 @@
 
       <div class="col-lg-6 text-left">
         <form id="user_input" method="get" action="/"> <!-- action is the URL you want to move to next-->
-          <label for="user_tropes">Your Current Tropes: </label>
+          <div><strong>Your Current Tropes: </strong></div>
           <textarea id="user_tropes" rows="10" cols="50" name="user_tropes" form="user_input">{{ textarea_args }}</textarea>
           <br>
           <input type="submit" value="Recommend!"> <!-- value is the text that will appear on the button. -->
@@ -28,7 +28,7 @@
 
       <div class="col-lg-6 text-left">
         <div>
-          <label for="trope_search">Search for Tropes: </label>
+          <div><strong>Search for Tropes: </strong></div>
           <input id="trope_search" type="string" placeholder="Search Tropes" name="trope_search">
         </div>
         <div>
