@@ -22,7 +22,8 @@ $(function() {
         $search_results.append(match_li);
         $(match_li).on('click', function() {
           console.log('you clicked', this);
-          $user_tropes.append(', ' + this.innerHTML)
+          // $user_tropes.append(', ' + this.innerHTML)
+          $user_tropes.val($user_tropes.val() + ', \n' + this.innerHTML)
         })
       })
 
