@@ -208,7 +208,7 @@ def trope_rec():
         conn = get_conn()
         try:
             rec_eng = TropeRecPsql(textarea_args, conn)
-            rec_title = 'Here are the recommended tropes based on your list:'
+            rec_title = 'Here are the recommended tropes based on your list, with links to their tvtropes.org page:'
             # rec_results: each tuple in the format of ('Shout Out', 'ShoutOut'), in order to display tvtropes link
             rec_results = [(add_space(trope), trope) for trope in rec_eng.get_recommendations(format_tropes=False)]
             conn.close()
@@ -219,7 +219,7 @@ def trope_rec():
         rec_title = ''
         rec_results = []
         # Keep trope suggestions if no textarea_args
-        textarea_args = 'Haunted House, Ironic Nursery Tune'
+        textarea_args = 'Haunted House, \nIronic Nursery Tune'
     return render_template('recommendations.html', rec_title=rec_title, rec_results=rec_results, textarea_args=textarea_args)
 
 @app.route('/howitworks', methods=['GET'])
@@ -248,7 +248,7 @@ def fetch_all_tropes():
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT trope FROM tropes ORDER BY trope")
-            names = [row[0] for row in cur.fetchall()]
+            names = [add_space(row[0]) for row in cur.fetchall()]
             return jsonify({'tropes': names})
 
 # Running the app -------------------

@@ -10,6 +10,24 @@ input {
   margin: 5px 0px;
 }
 
+ul {
+ list-style: none;
+ padding: 0;
+}
+
+label {
+  display:block;
+  margin: 5px 0px;
+}
+
+textarea {
+  margin: 5px 0px;
+}
+
+.instructions {
+  margin: 20px 0px;
+}
+
 .bokeh {
   margin: auto;
   max-width: 100%;
