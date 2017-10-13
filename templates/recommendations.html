@@ -5,12 +5,20 @@
   <div class="container">
     <h1>Trope Recommendation</h1>
   </div>
+  <div class="container">
+    <div class="comics">
+        <img src="static/xkcd.png" title="Now we can help you discover and read more tropes!" alt="xkcd comics about tropes" style="width:364px;height:203px;">
+        <a href="https://www.xkcd.com/609/"><p>xkcd: Tab Explosion</p></a>
+    </div>
+  </div>
+
 
   <!-- form -->
   <div class="container">
     <div class="row">
       <div class="col-lg-12 text-left">
         <div class="instructions">
+          <H3><i class="glyphicon glyphicon-thumbs-up"></i>  How to use the trope recommender </H3>
           <p>Enter your tropes in the "Your Current Tropes" text box below, each trope separated by a comma (,)</p>
           <p>You can use the search box to search for tropes. Click on a search result to add it to "Your Current Tropes".</p>
           <p>Then click the "Recommend!" button to see recommendations based on your tropes.</p>
@@ -19,7 +27,7 @@
 
       <div class="col-lg-6 text-left">
         <form id="user_input" method="get" action="/"> <!-- action is the URL you want to move to next-->
-          <div><strong>Your Current Tropes: </strong></div>
+          <H4><i class="glyphicon glyphicon-edit"></i>  Your Current Tropes:</H4>
           <textarea id="user_tropes" rows="10" cols="50" name="user_tropes" form="user_input">{{ textarea_args }}</textarea>
           <br>
           <input type="submit" value="Recommend!"> <!-- value is the text that will appear on the button. -->
@@ -28,8 +36,8 @@
 
       <div class="col-lg-6 text-left">
         <div>
-          <div><strong>Search for Tropes: </strong></div>
-          <input id="trope_search" type="string" placeholder="Search Tropes" name="trope_search">
+          <H4><i class="glyphicon glyphicon-search"></i>  Search for Tropes:</H4>
+          <input id="trope_search" type="string" placeholder="Search Tropes" name="trope_search" size="35">
         </div>
         <div>
           <ul id="search_results">

@@ -222,6 +222,10 @@ def trope_rec():
         textarea_args = 'Haunted House, \nIronic Nursery Tune'
     return render_template('recommendations.html', rec_title=rec_title, rec_results=rec_results, textarea_args=textarea_args)
 
+@app.route('/whataretropes', methods=['GET'])
+def load_whataretropes():
+     return render_template('whataretropes.html')
+
 @app.route('/howitworks', methods=['GET'])
 def load_howitworks():
      return render_template('howitworks.html')
