@@ -11,6 +11,8 @@ import urlparse
 
 import pandas as pd
 from bokeh.plotting import figure
+from bokeh.charts import Bar
+from bokeh.charts.attributes import CatAttr
 from bokeh.embed import components
 
 
@@ -39,29 +41,7 @@ def get_conn():
 
 
 # Constants --------------------------
-GENRE_LIST = [u'Action',
-              u'Adventure',
-              u'Animation',
-              u'Biography',
-              u'Comedy',
-              u'Crime',
-              u'Documentary',
-              u'Drama',
-              u'Family',
-              u'Fantasy',
-              u'Film-Noir',
-              u'History',
-              u'Horror',
-              u'Music',
-              u'Musical',
-              u'Mystery',
-              u'Romance',
-              u'Sci-Fi',
-              u'Short',
-              u'Sport',
-              u'Thriller',
-              u'War',
-              u'Western']
+freqs_each_genre_df = pd.read_csv('static/freqs_each_genre.csv', index_col=0)
 
 # Helper functions -------------------
 def add_space(text):
@@ -198,7 +178,19 @@ class TropeRecPsql(object):
         else: # Output will be formatted like 'ShoutOut', with no spaces
             return results
 
+# Plotting Functions ------------------
 
+def horizontal_plot_freq_by_trope(my_trope, freqs_each_genre_df=freqs_each_genre_df):
+    data = freqs_each_genre_df[freqs_each_genre_df['trope'] == my_trope].transpose()
+    data = data.drop(data.index[0]).reset_index()
+    data.columns = ['genres', my_trope]
+    custom_y_range = [g for g in data['genres'].values][::-1]
+
+    p = figure(title='Trope Frequencies of {}'.format(my_trope), y_range=custom_y_range,
+              y_axis_label='Genre', x_axis_label='Frequencies (%)', toolbar_location=None)
+    p.hbar(y=data['genres'], left=0, right=data[my_trope] * 100, height=0.7, color='#31a354', legend=False)
+
+    return p
 
 # Rendering pages --------------------
 @app.route('/', methods=['GET'])
@@ -232,7 +224,9 @@ def load_howitworks():
 
 @app.route('/funfacts', methods=['GET'])
 def load_insights():
-    return render_template('funfacts.html')
+    plot_by_trope = horizontal_plot_freq_by_trope('CreepyChild')
+    script_by_trope, div_by_trope = components(plot_by_trope)
+    return render_template('funfacts.html', script_by_trope=script_by_trope, div_by_trope=div_by_trope)
 
 @app.route('/about', methods=['GET'])
 def load_about():

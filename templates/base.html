@@ -10,12 +10,10 @@
     <!-- Bootstrap core CSS, for navbar -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 
-    <!-- Bokeh CSS -->
-    <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.7.min.css" type="text/css" />
-    <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.7.min.js"></script>
-
     <!-- Custom CSS for navbar, bokeh and boxed-->
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+
+    {% block head%}{% endblock %}
 
   </head>
 
