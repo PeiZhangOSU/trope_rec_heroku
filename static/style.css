@@ -45,6 +45,10 @@ textarea {
   text-align: center;
 }
 
+.spacer{
+  min-height: 50px;
+}
+
 .funfacts_text {
   font-size: 1.5em;
   margin: 20px 0px;

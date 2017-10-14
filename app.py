@@ -188,6 +188,7 @@ def horizontal_plot_freq_by_trope(my_trope, freqs_each_genre_df=freqs_each_genre
 
     p = figure(title='Trope Frequencies of {}'.format(my_trope), y_range=custom_y_range,
               y_axis_label='Genre', x_axis_label='Frequencies (%)', toolbar_location=None)
+
     p.hbar(y=data['genres'], left=0, right=data[my_trope] * 100, height=0.7, color='#31a354', legend=False)
 
     return p
@@ -224,7 +225,12 @@ def load_howitworks():
 
 @app.route('/funfacts', methods=['GET'])
 def load_insights():
-    plot_by_trope = horizontal_plot_freq_by_trope('CreepyChild')
+    trope_to_plot = request.args.get('trope_search_plot')
+    if trope_to_plot:
+        trope_to_plot = ''.join(trope_to_plot.split())
+    else:
+        trope_to_plot = 'Zeerust'
+    plot_by_trope = horizontal_plot_freq_by_trope(trope_to_plot)
     script_by_trope, div_by_trope = components(plot_by_trope)
     return render_template('funfacts.html', script_by_trope=script_by_trope, div_by_trope=div_by_trope)
 
