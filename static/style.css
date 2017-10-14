@@ -6,6 +6,14 @@ body {
   padding-top: 70px;
 }
 
+p {
+  margin-bottom:1.5em;
+}
+
+h1 {
+  margin-bottom:1.5em
+}
+
 input {
   margin: 5px 0px;
 }
@@ -54,6 +62,15 @@ textarea {
   margin: 20px 0px;
 }
 
-.search_bar{
+.search_bar {
   min-height: 50px
+}
+
+.about_me {
+  font-size: 1.5em;
+}
+
+.list_indent {
+  list-style-type: disc;
+  margin-left: 40px;
 }
