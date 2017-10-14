@@ -53,3 +53,7 @@ textarea {
   font-size: 1.5em;
   margin: 20px 0px;
 }
+
+.search_bar{
+  min-height: 50px
+}

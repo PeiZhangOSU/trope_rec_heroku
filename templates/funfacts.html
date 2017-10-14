@@ -1,13 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Fun Facts About Tropes in Movies{% endblock %}
 
-{% block head %}
-<!-- Bokeh CSS -->
-   <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.4.min.css" type="text/css" />
-   <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.4.min.js"></script>
-   {{ script_by_trope | safe }}
-{% endblock %}
-
 {% block content %}
   <div class="container">
     <h1>Fun Facts About Tropes in Movies</h1>
@@ -18,7 +11,7 @@
   <div class="container">
     <div class="funfacts_text">
   		<p>
-        The profile of tropes used in a movie gives us an idea of what the movie is like. Here is a heatmap of how frequently the top 20 most used tropes appear across different movie genres. Did you know that Downer Ending is a feature of Film-Noir?
+        The profile of tropes used in a movie gives us an idea of what the movie is like. Here is a heatmap of how frequently the top 20 most used tropes appear across different movie genres. Did you know that <a href="http://tvtropes.org/pmwiki/pmwiki.php/Main/DownerEnding" target="_blank">Downer Ending</a> is a feature of Film-Noir?
       </p>
       <img src="static/freq_heatmap_by_genre.png" alt="heatmap of top 20 tropes" style="width:100%;">
   </div>
@@ -37,6 +30,7 @@
 <div class="container">
   <div class="row">
     <div class="col-lg-8 text-left">
+      <p align="center"><a href="http://tvtropes.org/pmwiki/pmwiki.php/Main/{{ trope_name }}" target="_blank">{{ trope_name }}</a></p>
       <div class='bokeh'>
             {{ div_by_trope | safe }}
       </div>
@@ -45,7 +39,7 @@
     <div class="col-lg-4 text-left">
       <form id="user_trope_plot" method="get" action="/funfacts#bokeh_by_trope">
         <input type="submit" value="Examine My Trope!">
-        <div>
+        <div class="search_bar">
           <H4><i class="glyphicon glyphicon-search"></i>  Search for Tropes:</H4>
           <input id="trope_search_plot" type="string" placeholder="Search Tropes" name="trope_search_plot" size="35">
         </div>
@@ -65,4 +59,10 @@
 
 {% block scripts %}
   <script src="{{ url_for('static', filename='scripts/trope_search_plot.js') }}" type=text/javascript></script>
+
+  <!-- Bokeh CSS -->
+     <link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.4.min.css" type="text/css" />
+     <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-0.12.4.min.js"></script>
+     {{ script_by_trope | safe }}
+
 {% endblock %}

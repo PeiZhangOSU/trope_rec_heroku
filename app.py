@@ -232,7 +232,7 @@ def load_insights():
         trope_to_plot = 'Zeerust'
     plot_by_trope = horizontal_plot_freq_by_trope(trope_to_plot)
     script_by_trope, div_by_trope = components(plot_by_trope)
-    return render_template('funfacts.html', script_by_trope=script_by_trope, div_by_trope=div_by_trope)
+    return render_template('funfacts.html', script_by_trope=script_by_trope, div_by_trope=div_by_trope, trope_name=trope_to_plot)
 
 @app.route('/about', methods=['GET'])
 def load_about():
