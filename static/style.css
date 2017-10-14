@@ -7,11 +7,15 @@ body {
 }
 
 p {
-  margin-bottom:1.5em;
+  font-size: 1.5em;
 }
 
 h1 {
   margin-bottom:1.5em
+}
+
+h2 {
+  margin-bottom:1.2em
 }
 
 input {
@@ -58,7 +62,6 @@ textarea {
 }
 
 .funfacts_text {
-  font-size: 1.5em;
   margin: 20px 0px;
 }
 
@@ -66,9 +69,6 @@ textarea {
   min-height: 50px
 }
 
-.about_me {
-  font-size: 1.5em;
-}
 
 .list_indent {
   list-style-type: disc;
