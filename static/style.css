@@ -44,6 +44,7 @@ textarea {
   height:auto;
 }
 
+
 .boxed {
   border: 1px solid red;
 }
@@ -57,7 +58,7 @@ textarea {
 }
 
 .spacer{
-  min-height: 50px;
+  min-height: 10px;
 }
 
 .funfacts_text {

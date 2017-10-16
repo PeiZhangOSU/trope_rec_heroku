@@ -22,7 +22,6 @@
 
 <div class="container" id="bokeh_by_trope">
   <div class="spacer"></div>
-
   <div class="funfacts_text">
     <p>Typically, each trope is popular in a number of genres, but not very common in the others. Use the search box and the "Examine My Trope!" button below to check your trope:</p>
   </div>
@@ -33,7 +32,7 @@
     <div class="col-lg-8 text-left">
       <p align="center"><a href="http://tvtropes.org/pmwiki/pmwiki.php/Main/{{ trope_name }}" target="_blank">{{ trope_name }}</a></p>
       <div class='bokeh'>
-            {{ div_by_trope | safe }}
+        {{ div_by_trope | safe }}
       </div>
     </div>
 
@@ -64,6 +63,9 @@
   <!-- Bokeh CSS -->
      <link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.4.min.css" type="text/css" />
      <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-0.12.4.min.js"></script>
+     <!-- Overide default bokeh style to adjust bk.root height-->
+     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='overide_bokeh_style.css') }}">
      {{ script_by_trope | safe }}
+
 
 {% endblock %}

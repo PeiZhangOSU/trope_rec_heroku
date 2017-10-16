@@ -246,6 +246,15 @@ def horizontal_plot_freq_by_trope(my_trope, freqs_each_genre_df=freqs_each_genre
 
     return p
 
+def horizontal_plot_freq_by_genre(my_genre, freqs_each_genre_df=freqs_each_genre_df):
+    data = freqs_each_genre_df[['trope', my_genre]].nlargest(20, my_genre)
+    custom_y_range = [g for g in data['trope'].values][::-1]
+    p1 = figure(title='Trope Frequencies in {}'.format(my_genre), y_range=custom_y_range,
+                y_axis_label='Trope', x_axis_label='Frequencies (%)', toolbar_location=None)
+    p1.hbar(y=data['trope'], left=0, right=data[my_genre] * 100, height=0.7,
+            color='#6baed6', legend=False)
+    return p1
+
 # Rendering pages --------------------
 @app.route('/', methods=['GET'])
 def trope_rec():
@@ -278,6 +287,7 @@ def load_howitworks():
 
 @app.route('/funfacts', methods=['GET'])
 def load_insights():
+    # bokeh plot by trope, id="bokeh_by_trope"
     trope_to_plot = request.args.get('trope_search_plot')
     if trope_to_plot:
         trope_to_plot = ''.join(trope_to_plot.split())
@@ -285,7 +295,9 @@ def load_insights():
         trope_to_plot = 'Zeerust'
     plot_by_trope = horizontal_plot_freq_by_trope(trope_to_plot)
     script_by_trope, div_by_trope = components(plot_by_trope)
-    return render_template('funfacts.html', script_by_trope=script_by_trope, div_by_trope=div_by_trope, trope_name=trope_to_plot)
+
+    return render_template('funfacts.html',
+                           script_by_trope=script_by_trope, div_by_trope=div_by_trope, trope_name=trope_to_plot)
 
 @app.route('/about', methods=['GET'])
 def load_about():
