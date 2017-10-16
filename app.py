@@ -256,7 +256,7 @@ def trope_rec():
             rec_eng = TropeRecPsqlLift(textarea_args, conn)
             rec_title = 'Here are the recommended tropes based on your list:'
             # rec_results: each tuple in the format of ('ShoutOut', 'Shout Out', avg_lift), in order to display tvtropes link
-            rec_results = [(trope, add_space(trope), avg_lift) for trope, avg_lift in rec_eng.get_recommendations()]
+            rec_results = [(trope, add_space(trope), '{0:.1f}'.format(avg_lift)) for trope, avg_lift in rec_eng.get_recommendations()]
             conn.close()
         except ValueError as e:
             rec_title = getattr(e, 'message', repr(e))

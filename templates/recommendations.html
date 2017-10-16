@@ -27,7 +27,7 @@
       </div>
 
       <div class="col-lg-6 text-left">
-        <form id="user_input" method="get" action="/"> <!-- action is the URL you want to move to next-->
+        <form id="user_input" method="get" action="/#recommendation_results"> <!-- action is the URL you want to move to next-->
           <H4><i class="glyphicon glyphicon-edit"></i>  Your Current Tropes:</H4>
           <textarea id="user_tropes" rows="10" cols="50" name="user_tropes" form="user_input">{{ textarea_args }}</textarea>
           <br>
@@ -52,16 +52,18 @@
 
 
   <!-- recommendation results -->
-  <div class="container">
-    <h4>{{ rec_title }}</h4>
-    {% if rec_title %}
-      <p>The number in parentheses after each trope is the average lift of association rules of this trope and your tropes.
-        <a href = {{ url_for('load_howitworks') }}>How is the lift calcuated?</a>
+  <div class="container" id="recommendation_results">
+    <h3>{{ rec_title }}</h3>
+    {% if rec_results %}
+      <div class="instructions">
+        <p>The number in parentheses after each trope is the average lift of association rules between your tropes and this trope. </p>
+        <p>A lift value > 1 implies that this recommended trope and your tropes appears more together than by random chance. The larger the lift, the more significant the association. </p>
+        <p><a href = {{ url_for('load_howitworks') }}>Read more</a> about how the lift is calculated.</p>
+    </div>
     {% endif %}
-      </p>
     <ul>
       {% for result in rec_results %}
-        <li><a href="http://tvtropes.org/pmwiki/pmwiki.php/Main/{{ result[0] }}" target="_blank">{{ result[1] }} ({{ result[2]}})</a></li>
+        <li><a href="http://tvtropes.org/pmwiki/pmwiki.php/Main/{{ result[0] }}" target="_blank">{{ result[1] }}</a> ({{ result[2]}})</li>
       {% endfor %}
     </ul>
   </div>
