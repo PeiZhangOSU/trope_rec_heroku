@@ -1,6 +1,7 @@
 gunicorn==19.3.0
 requests==2.9.1
 pandas
+numpy
 bokeh==0.12.4
 unidecode
 sqlalchemy

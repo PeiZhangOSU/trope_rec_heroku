@@ -54,9 +54,14 @@
   <!-- recommendation results -->
   <div class="container">
     <h4>{{ rec_title }}</h4>
+    {% if rec_title %}
+      <p>The number in parentheses after each trope is the average lift of association rules of this trope and your tropes.
+        <a href = {{ url_for('load_howitworks') }}>How is the lift calcuated?</a>
+    {% endif %}
+      </p>
     <ul>
       {% for result in rec_results %}
-        <li><a href="http://tvtropes.org/pmwiki/pmwiki.php/Main/{{ result[1] }}" target="_blank">{{ result[0] }}</a></li>
+        <li><a href="http://tvtropes.org/pmwiki/pmwiki.php/Main/{{ result[0] }}" target="_blank">{{ result[1] }} ({{ result[2]}})</a></li>
       {% endfor %}
     </ul>
   </div>

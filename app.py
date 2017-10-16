@@ -10,6 +10,7 @@ import os
 import urlparse
 
 import pandas as pd
+import numpy as np
 from bokeh.plotting import figure
 from bokeh.charts import Bar
 from bokeh.charts.attributes import CatAttr
@@ -41,7 +42,15 @@ def get_conn():
 
 
 # Constants --------------------------
+# trope frequencies by genre, for plotting
 freqs_each_genre_df = pd.read_csv('static/freqs_each_genre.csv', index_col=0)
+
+# total number of movies that are used to populate the psql database containing 9387 tropes
+TOTAL_MOVIES = 5923
+
+# total number of trope apprearences from DBtropes data,
+# used to calculate trope freq in the psql database
+TOTAL_TROPE_APPEARENCES = 257349
 
 # Helper functions -------------------
 def add_space(text):
@@ -91,16 +100,36 @@ def heapsort_nlargest(my_dict, n):
         heapq.heappush(h, (value, key))
     return heapq.nlargest(n, h)
 
+def lift(count_ab, count_a, count_b, total_transactions):
+    return (count_ab * total_transactions) / (count_a * count_b)
+
+def common_keys(dict_list):
+    '''Take n (n>=2) dictionaries, return a list of keys that are shared by all dictionaries.'''
+    if len(dict_list) <= 1:
+        return dict_list
+    shortest_dict = min(dict_list, key=len)
+    shared_keys = []
+    for key in shortest_dict.keys():
+        is_shared = True
+        for each_dict in dict_list:
+            if key not in each_dict:
+                is_shared = False
+        if is_shared:
+            shared_keys.append(key)
+    return shared_keys
+
 
 # TropeRecommender class -------------
-# TODO: deal with database errors?
-
-class TropeRecPsql(object):
+class TropeRecPsqlLift(object):
+    # Use average lift(user_trope, candidate_trope) as recommendation criteria
     def __init__(self, input_string, db_conn):
         self.cur = db_conn.cursor()
+
         # init dictionaries
-        self.assn_dict = {} # will be the same format as trope_assn_dict that was used before database
         self.freq_dict = {}
+        self.assn_dict = {} # will be the same format as trope_assn_dict that was used before database
+        self.lifts_dict = {} # {trope_a :[lift w/user_trope1, lift w/user_trope2, ...]}
+        self.avg_lift_dict = {} # {trope_a : avg(lift of trope_a with each user trope)}
 
         # user input should be a string of comma separated tropes.
         if not isinstance(input_string, basestring):
@@ -109,72 +138,96 @@ class TropeRecPsql(object):
         if isinstance(input_string, str):
             input_string = input_string.encode('utf-8')
 
-        self.usr_tropes = split_csv_str(input_string)
+        self.user_tropes = split_csv_str(input_string)
         self.format_tropes()
         self.make_dict_from_input() # will populate self.assn_dict and self.freq_dict with self.user_tropes as keys
-        if len(self.usr_tropes) < 2:
+        if len(self.user_tropes) < 2:
             raise ValueError('Not enough tropes for analysis. Please try again with more tropes.')
 
         self.combine_neighbors()
-        if len(self.common_count_dict) < 1:
+        if len(self.common_neighbors) < 1:
             raise ValueError('No shared associations. Please try again with different tropes.')
         self.expand_freq_dict()
+
+        self.make_lifts_dict()
+        self.make_avg_lift_dict()
 
         # at the end of init, no need for db cursor anymore
         self.cur.close()
 
-    def get_usr_tropes(self):
-        return copy.deepcopy(self.usr_tropes)
+    def get_user_tropes(self):
+        return copy.deepcopy(self.user_tropes)
 
-    def get_common_count_dict(self):
-        return copy.deepcopy(self.common_count_dict)
+    def get_common_neighbors(self):
+        return copy.deepcopy(self.common_neighbors)
+
+    def get_lifts_dict(self):
+        return copy.deepcopy(self.lifts_dict)
+
+    def get_avg_lift_dict(self):
+        return copy.deepcopy(self.avg_lift_dict)
 
     def format_tropes(self):
-        self.usr_tropes = [strip_startcase(t) for t in self.usr_tropes]
+        self.user_tropes = [strip_startcase(t) for t in self.user_tropes]
 
     def make_dict_from_input(self):
         validated_tropes = []
-        for trope in self.usr_tropes:
+        for trope in self.user_tropes:
             self.cur.execute("SELECT COUNT(*) FROM tropes WHERE trope = %s;", (trope,))
             if self.cur.fetchone()[0] > 0:
                 validated_tropes.append(trope)
                 self.cur.execute("SELECT trope, freq, connections FROM tropes WHERE trope = %s;", (trope,))
                 row = self.cur.fetchone()
-                self.assn_dict[row[0]] = row[2] # make sure the index match trope, connections
-                self.freq_dict[row[0]] = row[1] # make sure the index match trope, freq
-        self.usr_tropes = validated_tropes
+                current_user_trope = row[0]
+                current_user_trope_freq = row[1]
+                current_user_trope_connections = row[2]
+
+                self.freq_dict[current_user_trope] = current_user_trope_freq
+                self.assn_dict[current_user_trope] = current_user_trope_connections
+
+        self.user_tropes = validated_tropes
 
     def combine_neighbors(self):
-        # calculate a count dict {trope: weight_sum} for neighbor tropes that are shared by all of self.usr_tropes
-        dict_list = [self.assn_dict[t] for t in self.usr_tropes]
-        self.common_count_dict = join_n_dicts(dict_list)
+        # Return a list of neighbor tropes that are shared by all of self.user_tropes
+        dict_list = [self.assn_dict[t] for t in self.user_tropes]
+        self.common_neighbors = common_keys(dict_list)
 
     def expand_freq_dict(self):
         # make a dictionary of {trope: its overall frequncy (not number of associations)}
-        for trope in self.common_count_dict.keys():
+        for trope in self.common_neighbors:
             self.cur.execute("SELECT trope, freq FROM tropes WHERE trope = %s;", (trope,))
             row = self.cur.fetchone()
             self.freq_dict[row[0]] = row[1] # make sure the index match trope, freq
 
-    def find_top_n(self, n=5, penalize_frequents = True):
-        if penalize_frequents:
-            dict_for_sorting = {key: value * 1.0 / self.freq_dict[key]
-                                for key, value in self.common_count_dict.iteritems()}
-        else:
-            dict_for_sorting = self.common_count_dict
+    def make_lifts_dict(self):
+       # {trope_a :[lift w/user_trope1, lift w/user_trope2, ...],
+       #  trope_b :[lift w/user_trope1, lift w/user_trope2, ...]}
+        for candidate_trope in self.common_neighbors:
+            current_list = []
+            count_c = self.freq_dict[candidate_trope] * TOTAL_TROPE_APPEARENCES
+            for user_trope in self.user_tropes:
+                # u: user trope, c: candidate trope
+                count_uc = self.assn_dict[user_trope][candidate_trope]
+                count_u = self.freq_dict[user_trope] * TOTAL_TROPE_APPEARENCES
+                current_list.append(lift(count_uc, count_u, count_c, TOTAL_MOVIES))
+            self.lifts_dict[candidate_trope] = current_list
 
-        if len(dict_for_sorting) < 1:
+    def make_avg_lift_dict(self):
+        self.avg_lift_dict = {key : np.mean(value_list) for key, value_list in self.lifts_dict.iteritems()}
+
+    def find_top_n(self, n):
+        if len(self.avg_lift_dict) < 1:
             return None
-        elif n > len(dict_for_sorting):
-            return [(trope, self.freq_dict[trope]) for trope in dict_for_sorting.keys()]
+        elif n > len(self.avg_lift_dict):
+            return [(trope, avg_lift) for trope, avg_lift in self.avg_lift_dict.iteritems()]
         else:
-            return [(trope, count) for (count, trope) in heapsort_nlargest(dict_for_sorting, n)]
+            return [(trope, avg_lift) for (avg_lift, trope) in heapsort_nlargest(self.avg_lift_dict, n)]
 
-    def get_recommendations(self, n=5, penalize_frequents=True, format_tropes=True):
-        # returns only the names of tropes
-        results = [trope for (trope, count) in self.find_top_n(n, penalize_frequents)]
-        if format_tropes: # Output will be formatted like 'Shout Out'
-            return [add_space(trope) for trope in results]
+    def get_recommendations(self, n=5, spaces_in_tropes=False):
+        # return (recommended_trope, avg_lift)
+        results = self.find_top_n(n)
+        if spaces_in_tropes: # Output will be formatted like 'Shout Out'
+            return [(add_space(trope), avg_lift) for (trope, avg_lift) in results]
         else: # Output will be formatted like 'ShoutOut', with no spaces
             return results
 
@@ -200,10 +253,10 @@ def trope_rec():
     if textarea_args:
         conn = get_conn()
         try:
-            rec_eng = TropeRecPsql(textarea_args, conn)
-            rec_title = 'Here are the recommended tropes based on your list, with links to their tvtropes.org page:'
-            # rec_results: each tuple in the format of ('Shout Out', 'ShoutOut'), in order to display tvtropes link
-            rec_results = [(add_space(trope), trope) for trope in rec_eng.get_recommendations(format_tropes=False)]
+            rec_eng = TropeRecPsqlLift(textarea_args, conn)
+            rec_title = 'Here are the recommended tropes based on your list:'
+            # rec_results: each tuple in the format of ('ShoutOut', 'Shout Out', avg_lift), in order to display tvtropes link
+            rec_results = [(trope, add_space(trope), avg_lift) for trope, avg_lift in rec_eng.get_recommendations()]
             conn.close()
         except ValueError as e:
             rec_title = getattr(e, 'message', repr(e))
