@@ -70,4 +70,12 @@ textarea {
 .list_indent {
   list-style-type: disc;
   margin-left: 40px;
+  margin-bottom: 10px;
+}
+
+.formula_img{
+  display: block;
+  margin-left: 70px;
+  margin-right: auto;
+  margin-bottom: 10px
 }

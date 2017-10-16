@@ -54,18 +54,21 @@
   <!-- recommendation results -->
   <div class="container" id="recommendation_results">
     <h3>{{ rec_title }}</h3>
+    <ul>
+      {% for result in rec_results %}
+        <li>
+          <a href="http://tvtropes.org/pmwiki/pmwiki.php/Main/{{ result[0] }}" target="_blank">{{ result[1] }}</a> ({{ result[2]}})
+        </li>
+      {% endfor %}
+    </ul>
+
     {% if rec_results %}
       <div class="instructions">
         <p>The number in parentheses after each trope is the average lift of association rules between your tropes and this trope. </p>
         <p>A lift value > 1 implies that this recommended trope and your tropes appears more together than by random chance. The larger the lift, the more significant the association. </p>
         <p><a href = {{ url_for('load_howitworks') }}>Read more</a> about how the lift is calculated.</p>
-    </div>
+      </div>
     {% endif %}
-    <ul>
-      {% for result in rec_results %}
-        <li><a href="http://tvtropes.org/pmwiki/pmwiki.php/Main/{{ result[0] }}" target="_blank">{{ result[1] }}</a> ({{ result[2]}})</li>
-      {% endfor %}
-    </ul>
   </div>
 {% endblock %}
 

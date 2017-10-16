@@ -3,12 +3,30 @@
 {% block content %}
   <div class="container">
     <h1>How Are the Recommendations Made?</h1>
-		<p>This will be a paragraph introducing tropes.</p>
-		<p>This will be another paragraph introducing trope associations, and how the recommendations are made. </p>
-		<p>Now try the recommender with your tropes!</p>
-		<form action="/">
-        <input type="submit" value="Try the Recommender!" />
-    </form>
+		<p>I built the database behind this website by parsing and aggregating data from <a href="http://DBtropes.org">DBtropes.org</a>,
+       a Linked Data wrapper for <a href="http://TVTropes.org">TVTropes.org</a>.</p>
+
+    <p>When you submit your list of tropes, the recommender searches the database to find all candidate tropes that have appeared in the same movies with all your   tropes. Then for each candidate, the recommender calculates the <a href="https://en.wikipedia.org/wiki/Association_rule_learning#Lift">lift</a>  of its assocation rule with each trope you submitted.</p>
+
+    <p>An association rule {X -> Y} means when we have trope X in a movie, we will also have trope Y in that movie. To estimate the importance of the rule, we can calculate the <strong>lift</strong> of this rule {X -> Y}: </p>
+
+    <div class="formula_img">
+      <img src="static/lift_formula.png" alt="formula of lift" style="width:80%;">
+    </div>
+
+
+    <ul>
+      <div class="list_indent">
+        <li>If the two tropes X and Y are statistically independent, then P(X, Y) = P(X)P(Y), resulting in a lift value of 1.</li>
+        <li>A lift value > 1 implies that the tropes X and Y appears more together than by random chance.
+            The larger the lift, the more significant the association. </li>
+        <li>A lift values < 1 implies that the tropes X and Y rarely co-occur together.</li>
+      </div>
+    <ul>
+
+    <p>After the lift values are calculated, the recommender ranks the candidate tropes by their average lift of association rules with each of your tropes, and return the candidate tropes with the highest lift values -- new tropes that are the most highly associated with your tropes. </p>
+
+    <p>Now <a href="{{ url_for('trope_rec') }}">try the recommender</a> to discover new tropes!</p>
   </div>
 
 {% endblock %}
