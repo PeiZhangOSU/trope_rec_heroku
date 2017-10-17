@@ -274,7 +274,7 @@ def trope_rec():
         rec_title = ''
         rec_results = []
         # Keep trope suggestions if no textarea_args
-        textarea_args = 'Haunted House, \nIronic Nursery Tune'
+        textarea_args = 'Mad Scientist, \nHeroic Sacrifice'
     return render_template('recommendations.html', rec_title=rec_title, rec_results=rec_results, textarea_args=textarea_args)
 
 @app.route('/whataretropes', methods=['GET'])
