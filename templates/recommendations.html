@@ -63,9 +63,16 @@
     </ul>
 
     {% if rec_results %}
+      <h3>Explanation: </h3>
       <div class="instructions">
-        <p>The number in parentheses after each trope is the average lift of association rules between your tropes and this trope. </p>
-        <p>A lift value > 1 implies that this recommended trope and your tropes appears more together than by random chance. The larger the lift, the more significant the association. </p>
+        <p>The number in parentheses after each trope is the average <strong>lift</strong> of association rules between your tropes and this trope,
+           which is the ratio of the observed probability of these tropes all appear together
+           to the probability of these tropes appear together purely by random chance:</p>
+        <div class="formula_img">
+          <img src="static/lift_formula_simple.png" alt="simple formula of lift" style="max-width:35%; min-width:255;">
+        </div>
+        <p>A lift value > 1 implies that this recommended trope and your tropes appears more together than by random chance.
+          The larger the lift, the more significant the association. </p>
         <p><a href = {{ url_for('load_howitworks') }}>Read more</a> about how the lift is calculated.</p>
       </div>
     {% endif %}
