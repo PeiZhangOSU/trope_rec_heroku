@@ -3,7 +3,7 @@
 {% block content %}
   <div class="container">
     <h1>How Are the Recommendations Made?</h1>
-		<p>I built the database behind this website by parsing and aggregating data from <a href="http://DBtropes.org">DBtropes.org</a>,
+		<p>I built the database behind this website by parsing and aggregating data (~ 4GB) from <a href="http://DBtropes.org">DBtropes.org</a>,
        a Linked Data wrapper for <a href="http://TVTropes.org">TVTropes.org</a>.</p>
 
     <p>When you submit your list of tropes, the recommender searches the database to find all candidate tropes that have appeared in the same movies with all your   tropes. Then for each candidate, the recommender calculates the <a href="https://en.wikipedia.org/wiki/Association_rule_learning#Lift">lift</a>  of its assocation rule with each trope you submitted.</p>
