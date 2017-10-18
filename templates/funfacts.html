@@ -7,23 +7,13 @@
     <p></p>
   </div>
 
-<!-- Heatmap -->
-  <div class="container">
-    <div class="funfacts_text">
-  		<p>
-        The profile of tropes used in a movie gives us an idea of what the movie is like. Here is a heatmap of how frequently the top 20 most used tropes appear across different movie genres. Did you know that <a href="http://tvtropes.org/pmwiki/pmwiki.php/Main/DownerEnding" target="_blank">Downer Ending</a> is a feature of Film-Noir?
-      </p>
-      <p>Find out how popular your trope is across different genres <a href="#bokeh_by_trope">here</a>!</p>
-      <img src="static/freq_heatmap_by_genre.png" alt="heatmap of top 20 tropes" style="width:100%;">
-  </div>
-  </div>
 
 <!-- Plot by trope -->
 
 <div class="container" id="bokeh_by_trope">
   <div class="spacer"></div>
   <div class="funfacts_text">
-    <p>Typically, each trope is popular in a number of genres, but not very common in the others. Did you know 
+    <p>Typically, each trope is popular in a number of genres, but not very common in the others. Did you know
        <a href="http://tvtropes.org/pmwiki/pmwiki.php/Main/DownerBeginning" target="_blank">Downer Beginning</a> and
        <a href="http://tvtropes.org/pmwiki/pmwiki.php/Main/DownerEnding" target="_blank">Downer Ending</a> have quite different frequency profiles? </p>
     <p>Check your favorite trope using the search box and the "Examine My Trope!" button below:</p>
@@ -40,7 +30,7 @@
     </div>
 
     <div class="col-lg-4 text-left">
-      <form id="user_trope_plot" method="get" action="/funfacts#bokeh_by_trope">
+      <form id="user_trope_plot" method="get" action="/funfacts">
         <input type="submit" value="Examine My Trope!">
         <div class="search_bar">
           <H4><i class="glyphicon glyphicon-search"></i>  Search for Tropes:</H4>
@@ -57,6 +47,15 @@
   </div>
 </div>
 
+<!-- Heatmap -->
+  <div class="container">
+    <div class="funfacts_text">
+  		<p>
+        The profile of tropes used in a movie gives us an idea of what the movie is like. Here is a heatmap of how frequently the top 20 most used tropes appear across different movie genres. Did you know that <a href="http://tvtropes.org/pmwiki/pmwiki.php/Main/DownerEnding" target="_blank">Downer Ending</a> is a feature of Film-Noir?
+      </p>
+      <img src="static/freq_heatmap_by_genre.png" alt="heatmap of top 20 tropes" style="width:100%;">
+  </div>
+  </div>
 
 {% endblock %}
 
