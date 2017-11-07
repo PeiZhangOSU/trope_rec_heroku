@@ -242,6 +242,8 @@ def horizontal_plot_freq_by_trope(my_trope, freqs_each_genre_df=freqs_each_genre
     p = figure(title='Trope Frequencies of {}'.format(my_trope), y_range=custom_y_range,
               y_axis_label='Genre', x_axis_label='Frequencies (%)', toolbar_location=None)
 
+    p.toolbar.active_drag = None
+    p.toolbar.active_scroll = None
     p.hbar(y=data['genres'], left=0, right=data[my_trope] * 100, height=0.7, color='#31a354', legend=False)
 
     return p
@@ -251,6 +253,8 @@ def horizontal_plot_freq_by_genre(my_genre, freqs_each_genre_df=freqs_each_genre
     custom_y_range = [g for g in data['trope'].values][::-1]
     p1 = figure(title='Trope Frequencies in {}'.format(my_genre), y_range=custom_y_range,
                 y_axis_label='Trope', x_axis_label='Frequencies (%)', toolbar_location=None)
+    p1.toolbar.active_drag = None
+    p1.toolbar.active_scroll = None
     p1.hbar(y=data['trope'], left=0, right=data[my_genre] * 100, height=0.7,
             color='#6baed6', legend=False)
     return p1
