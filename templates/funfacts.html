@@ -23,6 +23,9 @@
 <div class="container">
   <div class="row">
     <div class="col-lg-8 text-left">
+      {% if error %}
+        <p class=error><strong>Error:</strong> {{ error }}
+      {% endif %}
       <p align="center"><a href="http://tvtropes.org/pmwiki/pmwiki.php/Main/{{ trope_name }}" target="_blank">{{ trope_name }}</a></p>
       <div class='bokeh'>
         {{ div_by_trope | safe }}

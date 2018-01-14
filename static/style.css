@@ -81,3 +81,9 @@ textarea {
   margin-right: auto;
   margin-bottom: 10px
 }
+
+.error{
+  border: 2px solid red;
+  padding: 3px;
+  text-align: center;
+}
